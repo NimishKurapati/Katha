@@ -1,0 +1,90 @@
+{% extends 'novels/base.html' %}
+{% block content %}
+<div class="row g-4">
+    <!-- Left Sidebar: Novel Info, Voting, and Chapter List -->
+    <div class="col-12 col-lg-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <h3 class="card-title fw-bold">{{ novel.title }}</h3>
+                <p class="text-muted mb-2">Author: <strong>{{ novel.author.username }}</strong></p>
+                <p class="fw-bold text-warning">⭐ Rating: {{ novel.average_rating }} / 5</p>
+                <p class="small">{{ novel.synopsis }}</p>
+
+                <!-- 1-5 Voting Section -->
+                <hr>
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'rate_novel' novel.id %}" class="d-flex align-items-center gap-2">
+                    {% csrf_token %}
+                    <label class="small fw-semibold">Rate:</label>
+                    <select name="score" class="form-select form-select-sm w-auto">
+                        {% if user_rating == 5 %}
+                        <option value="5" selected>5 - Masterpiece</option>
+                        {% else %}
+                        <option value="5">5 - Masterpiece</option>
+                        {% endif %}
+                        {% if user_rating == 4 %}
+                        <option value="4" selected>4 - Great</option>
+                        {% else %}
+                        <option value="4">4 - Great</option>
+                        {% endif %}
+                        {% if user_rating == 3 %}
+                        <option value="3" selected>3 - Good</option>
+                        {% else %}
+                        <option value="3">3 - Good</option>
+                        {% endif %}
+                        {% if user_rating == 2 %}
+                        <option value="2" selected>2 - Fair</option>
+                        {% else %}
+                        <option value="2">2 - Fair</option>
+                        {% endif %}
+                        {% if user_rating == 1 %}
+                        <option value="1" selected>1 - Poor</option>
+                        {% else %}
+                        <option value="1">1 - Poor</option>
+                        {% endif %}
+                    </select>
+                    <button type="submit" class="btn btn-warning btn-sm">Vote</button>
+                </form>
+                {% else %}
+                <p class="small text-muted mb-0"><a href="{% url 'login' %}">Log in</a> to rate this novel.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header fw-bold">Chapters</div>
+            <div class="list-group list-group-flush">
+                {% for ch in chapters %}
+                {% if current_chapter and ch.id == current_chapter.id %}
+                <a href="{% url 'read_chapter' novel.id ch.chapter_number %}"
+                    class="list-group-item list-group-item-action active">
+                    Ch. {{ ch.chapter_number }}: {{ ch.title }}
+                </a>
+                {% else %}
+                <a href="{% url 'read_chapter' novel.id ch.chapter_number %}"
+                    class="list-group-item list-group-item-action">
+                    Ch. {{ ch.chapter_number }}: {{ ch.title }}
+                </a>
+                {% endif %}
+                {% empty %}
+                <div class="list-group-item text-muted small">No chapters uploaded yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Reading Area -->
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                {% if current_chapter %}
+                <h4 class="fw-bold mb-4">Chapter {{ current_chapter.chapter_number }}: {{ current_chapter.title }}</h4>
+                <div class="chapter-content">{{ current_chapter.content }}</div>
+                {% else %}
+                <p class="text-muted text-center my-5">This novel doesn't have any chapters yet. Check back soon!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
