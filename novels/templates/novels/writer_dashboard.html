@@ -8,10 +8,10 @@
         <div class="card shadow-sm">
             <div class="card-header bg-dark text-white fw-bold">Publish a New Novel</div>
             <div class="card-body">
-                <form method="post">
+                <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form.as_p }}
-                    <button type="submit" class="btn btn-success w-100">Create Novel</button>
+                    <button type="submit" class="btn btn-accent w-100">Create Novel</button>
                 </form>
             </div>
         </div>

@@ -9,16 +9,30 @@ class Novel(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='published_novels')
     synopsis = models.TextField()
+    cover_image = models.ImageField(
+        upload_to='covers/',
+        blank=True,
+        null=True,
+        help_text="Upload a cover image from your device (JPG, PNG, WEBP)"
+    )
     cover_url = models.URLField(
         blank=True,
         null=True,
-        help_text="Optional URL to a cover image"
+        help_text="Or paste an external image link (optional)"
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def cover_src(self):
+        if self.cover_image:
+            return self.cover_image.url
+        if self.cover_url:
+            return self.cover_url
+        return None
+
     def average_rating(self):
         avg = self.ratings.aggregate(Avg('score'))['score__avg']
-        return round(avg, 1) if avg else "No ratings"
+        return round(avg, 1) if avg else "New"
 
     def __str__(self):
         return self.title

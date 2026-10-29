@@ -136,3 +136,6 @@ LOGOUT_REDIRECT_URL = 'home'
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -5,11 +5,12 @@ from .models import Novel, Chapter, WriterRequest
 class NovelForm(forms.ModelForm):
     class Meta:
         model = Novel
-        fields = ['title', 'cover_url', 'synopsis']
+        fields = ['title', 'cover_image', 'cover_url', 'synopsis']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'cover_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com/cover.jpg'}),
-            'synopsis': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter novel title...'}),
+            'cover_image': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'cover_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com/cover.jpg (optional)'}),
+            'synopsis': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Write a compelling synopsis...'}),
         }
 
 

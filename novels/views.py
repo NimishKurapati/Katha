@@ -32,7 +32,7 @@ def read_novel(request, novel_id, chapter_num=None):
     novel = get_object_or_404(Novel, id=novel_id)
     chapters = novel.chapters.all()
 
-    user_rating = None
+    user_rating = 0
     if request.user.is_authenticated:
         ReadingHistory.objects.update_or_create(user=request.user, novel=novel)
         rating_obj = Rating.objects.filter(
@@ -47,10 +47,20 @@ def read_novel(request, novel_id, chapter_num=None):
     elif chapters.exists():
         current_chapter = chapters.first()
 
+    prev_chapter = None
+    next_chapter = None
+    if current_chapter:
+        prev_chapter = chapters.filter(
+            chapter_number__lt=current_chapter.chapter_number).order_by('-chapter_number').first()
+        next_chapter = chapters.filter(
+            chapter_number__gt=current_chapter.chapter_number).order_by('chapter_number').first()
+
     return render(request, 'novels/read_novel.html', {
         'novel': novel,
         'chapters': chapters,
         'current_chapter': current_chapter,
+        'prev_chapter': prev_chapter,
+        'next_chapter': next_chapter,
         'user_rating': user_rating,
     })
 
@@ -108,18 +118,17 @@ def wishlist_view(request):
 def writer_dashboard(request):
     approved = is_approved_writer(request.user)
 
-    # Case 1: User is an Approved Writer (or Admin)
     if approved:
         my_published_novels = Novel.objects.filter(
             author=request.user).order_by('-created_at')
         if request.method == 'POST':
-            form = NovelForm(request.POST)
+            # <-- Handles uploaded image files
+            form = NovelForm(request.POST, request.FILES)
             if form.is_valid():
                 novel = form.save(commit=False)
                 novel.author = request.user
                 novel.save()
-                messages.success(
-                    request, "Novel published! Now you can add chapters.")
+                messages.success(request, "Novel published with cover!")
                 return redirect('writer_dashboard')
         else:
             form = NovelForm()
@@ -130,7 +139,6 @@ def writer_dashboard(request):
             'form': form
         })
 
-    # Case 2: User is NOT Approved Yet -> Show Request Status or Application Form
     writer_req = WriterRequest.objects.filter(user=request.user).first()
     if request.method == 'POST':
         req_form = WriterRequestForm(request.POST, instance=writer_req)

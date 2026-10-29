@@ -1,33 +1,45 @@
 {% extends 'novels/base.html' %}
 {% block content %}
-<h2 class="mb-4 fw-bold">All Light Novels</h2>
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h2 class="fw-bold mb-1" style="font-family: 'Lora', serif;"> Library</h2>
+        <p class="text-muted small mb-0">Immerse yourself in community-crafted light novels</p>
+    </div>
+</div>
 
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
     {% for novel in novels %}
     <div class="col">
-        <div class="card shadow-sm novel-tile">
-            {% if novel.cover_url %}
-            <img src="{{ novel.cover_url }}" class="card-img-top cover-img" alt="{{ novel.title }}">
-            {% else %}
-            <div class="cover-img p-3 text-center">
-                <span class="fs-5 fw-semibold">{{ novel.title }}</span>
-            </div>
-            {% endif %}
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title text-truncate" title="{{ novel.title }}">{{ novel.title }}</h5>
-                <p class="text-muted small mb-1">By {{ novel.author.username }}</p>
-                <p class="small text-warning fw-bold mb-2">⭐ {{ novel.average_rating }} / 5</p>
-                <p class="card-text small text-secondary flex-grow-1">{{ novel.synopsis|truncatewords:18 }}</p>
-
-                <div class="d-grid gap-2 mt-3">
-                    <a href="{% url 'read_novel' novel.id %}" class="btn btn-primary btn-sm">📖 Read Now</a>
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'toggle_wishlist' novel.id %}"
-                        class="btn {% if novel.id in user_wishlist %}btn-danger{% else %}btn-outline-secondary{% endif %} btn-sm">
-                        {% if novel.id in user_wishlist %}♥ In Wishlist{% else %}+ Add to Wishlist{% endif %}
-                    </a>
+        <div class="card novel-tile d-flex flex-column">
+            <a href="{% url 'read_novel' novel.id %}" class="text-decoration-none">
+                <div class="cover-wrapper d-flex align-items-center justify-content-center">
+                    {% if novel.cover_src %}
+                    <img src="{{ novel.cover_src }}" class="cover-img" alt="{{ novel.title }}">
                     {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-sm">+ Add to Wishlist</a>
+                    <div class="p-4 text-center text-light">
+                        <span class="fs-5" style="font-family: 'Lora', serif;">{{ novel.title }}</span>
+                    </div>
+                    {% endif %}
+                    <span class="rating-pill">★ {{ novel.average_rating }}</span>
+                </div>
+            </a>
+            <div class="card-body d-flex flex-column p-3">
+                <h5 class="card-title fw-bold text-truncate mb-1" title="{{ novel.title }}">{{ novel.title }}</h5>
+                <p class="text-muted small mb-2">by {{ novel.author.username }}</p>
+                <p class="card-text small text-muted flex-grow-1">{{ novel.synopsis|truncatewords:18 }}</p>
+
+                <div class="d-flex gap-2 mt-3">
+                    <a href="{% url 'read_novel' novel.id %}" class="btn btn-accent btn-sm flex-grow-1">Read</a>
+                    {% if user.is_authenticated %}
+                    {% if novel.id in user_wishlist %}
+                    <a href="{% url 'toggle_wishlist' novel.id %}" class="btn btn-soft btn-sm text-danger"
+                        title="Remove from Wishlist">♥ Saved</a>
+                    {% else %}
+                    <a href="{% url 'toggle_wishlist' novel.id %}" class="btn btn-soft btn-sm" title="Add to Wishlist">♡
+                        Wishlist</a>
+                    {% endif %}
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-soft btn-sm">♡ Wishlist</a>
                     {% endif %}
                 </div>
             </div>
@@ -35,8 +47,10 @@
     </div>
     {% empty %}
     <div class="col-12">
-        <div class="alert alert-info">No novels have been published yet. Visit the Writer Studio to publish the first
-            one!</div>
+        <div class="card p-5 text-center">
+            <h5 class="fw-bold">No stories published yet</h5>
+            <p class="text-muted mb-3">Visit the Writer Studio to publish the very first light novel.</p>
+        </div>
     </div>
     {% endfor %}
 </div>
